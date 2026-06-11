@@ -1,0 +1,70 @@
+// Utilidades de formato (moneda COP, números, porcentajes, fechas).
+
+const COP = new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  maximumFractionDigits: 0,
+});
+
+const COP_COMPACT = new Intl.NumberFormat("es-CO", {
+  style: "currency",
+  currency: "COP",
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+const NUM = new Intl.NumberFormat("es-CO", { maximumFractionDigits: 0 });
+const NUM2 = new Intl.NumberFormat("es-CO", { maximumFractionDigits: 2 });
+
+/** $ 44.875.000 */
+export function formatCOP(value: number): string {
+  return COP.format(Math.round(value || 0));
+}
+
+/** $ 44,9 M — para ejes y tarjetas compactas */
+export function formatCOPCompact(value: number): string {
+  return COP_COMPACT.format(value || 0);
+}
+
+/** 8.051.382 */
+export function formatNumber(value: number): string {
+  return NUM.format(Math.round(value || 0));
+}
+
+/** 1.324,95 */
+export function formatDecimal(value: number): string {
+  return NUM2.format(value || 0);
+}
+
+/** Recibe una fracción 0..1 y devuelve "1,90 %" */
+export function formatPercent(fraction: number, decimals = 2): string {
+  return `${(((fraction || 0) * 100)).toLocaleString("es-CO", {
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  })} %`;
+}
+
+/** "9 jun 2026" a partir de YYYY-MM-DD (sin desfase de zona horaria). */
+export function formatDate(iso: string): string {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.toLocaleDateString("es-CO", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+/** "9 jun" corto, para ejes de gráficos. */
+export function formatDateShort(iso: string): string {
+  if (!iso) return "";
+  const [y, m, d] = iso.split("-").map(Number);
+  const date = new Date(Date.UTC(y, m - 1, d));
+  return date.toLocaleDateString("es-CO", {
+    day: "numeric",
+    month: "short",
+    timeZone: "UTC",
+  });
+}
