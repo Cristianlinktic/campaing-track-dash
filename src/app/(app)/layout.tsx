@@ -27,7 +27,7 @@ export default async function AppLayout({
       <div className="flex min-h-screen">
         <Sidebar role={user.role} />
         <div className="flex min-w-0 flex-1 flex-col">
-          <TopBar title={campaignName} username={user.name ?? user.username} />
+          <TopBar title={campaignName} username={user.name ?? user.username} role={user.role} />
           <main className="flex-1 px-5 py-6 sm:px-8 sm:py-8">
             <div className="mx-auto max-w-7xl space-y-6">{children}</div>
           </main>
