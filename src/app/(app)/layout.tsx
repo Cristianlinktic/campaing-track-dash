@@ -25,7 +25,7 @@ export default async function AppLayout({
   return (
     <ToastProvider>
       <div className="flex min-h-screen">
-        <Sidebar />
+        <Sidebar role={user.role} />
         <div className="flex min-w-0 flex-1 flex-col">
           <TopBar title={campaignName} username={user.name ?? user.username} />
           <main className="flex-1 px-5 py-6 sm:px-8 sm:py-8">

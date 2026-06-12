@@ -30,6 +30,7 @@ interface UserRow {
   username: string;
   password_hash: string;
   display_name: string | null;
+  role: "admin" | "reader";
 }
 
 /**
@@ -43,7 +44,7 @@ export async function login(
   const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from("app_user_campaing")
-    .select("id, username, password_hash, display_name")
+    .select("id, username, password_hash, display_name, role")
     .eq("username", username.trim().toLowerCase())
     .maybeSingle<UserRow>();
 
@@ -57,7 +58,12 @@ export async function login(
   const ok = await verifyPassword(password, data.password_hash);
   if (!ok) return null;
 
-  const session = { sub: data.id, username: data.username, name: data.display_name ?? undefined };
+  const session = {
+    sub: data.id,
+    username: data.username,
+    name: data.display_name ?? undefined,
+    role: data.role ?? "reader",
+  } satisfies Parameters<typeof signSession>[0];
   const token = await signSession(session);
 
   const store = await cookies();
@@ -69,7 +75,7 @@ export async function login(
     maxAge: SESSION_MAX_AGE,
   });
 
-  return { sub: data.id, username: data.username, name: data.display_name ?? undefined };
+  return { sub: data.id, username: data.username, name: data.display_name ?? undefined, role: data.role ?? "reader" };
 }
 
 export async function logout(): Promise<void> {

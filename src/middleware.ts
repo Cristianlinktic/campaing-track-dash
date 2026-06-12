@@ -5,6 +5,8 @@ import { SESSION_COOKIE, verifySession } from "@/lib/session";
 // Usa solo `jose` (edge-safe) para verificar el JWT de sesión.
 
 const PUBLIC_PATHS = ["/login", "/api/auth/login"];
+// Solo accesibles por admin; el lector es redirigido al inicio.
+const ADMIN_PATHS = ["/importar", "/configuracion"];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
@@ -28,6 +30,14 @@ export async function middleware(req: NextRequest) {
     const url = new URL("/login", req.url);
     if (pathname !== "/") url.searchParams.set("next", pathname);
     return NextResponse.redirect(url);
+  }
+
+  // Lector intenta acceder a rutas de admin → redirige al inicio.
+  const isAdminRoute = ADMIN_PATHS.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+  if (isAdminRoute && session.role !== "admin") {
+    return NextResponse.redirect(new URL("/", req.url));
   }
 
   return NextResponse.next();

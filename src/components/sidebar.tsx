@@ -7,6 +7,7 @@ interface NavItem {
   href: string;
   label: string;
   icon: React.ReactNode;
+  adminOnly?: boolean;
 }
 
 const ICONS = {
@@ -52,11 +53,11 @@ const NAV: NavItem[] = [
   { href: "/canales", label: "Distribución x Canal", icon: ICONS.canales },
   { href: "/diario", label: "Desglose Diario", icon: ICONS.diario },
   { href: "/proyecciones", label: "Proyecciones", icon: ICONS.proyecciones },
-  { href: "/importar", label: "Importar Excel", icon: ICONS.importar },
-  { href: "/configuracion", label: "Configuración", icon: ICONS.config },
+  { href: "/importar", label: "Importar Excel", icon: ICONS.importar, adminOnly: true },
+  { href: "/configuracion", label: "Configuración", icon: ICONS.config, adminOnly: true },
 ];
 
-export function Sidebar() {
+export function Sidebar({ role = "reader" }: { role?: "admin" | "reader" }) {
   const pathname = usePathname();
 
   return (
@@ -72,7 +73,7 @@ export function Sidebar() {
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {NAV.map((item) => {
+        {NAV.filter((item) => !item.adminOnly || role === "admin").map((item) => {
           const active =
             item.href === "/"
               ? pathname === "/"

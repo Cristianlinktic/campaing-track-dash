@@ -12,6 +12,7 @@ export interface SessionPayload extends JWTPayload {
   sub: string; // user id
   username: string;
   name?: string;
+  role: "admin" | "reader";
 }
 
 function getSecret(): Uint8Array {
@@ -21,9 +22,9 @@ function getSecret(): Uint8Array {
 }
 
 export async function signSession(
-  payload: Pick<SessionPayload, "sub" | "username" | "name">,
+  payload: Pick<SessionPayload, "sub" | "username" | "name" | "role">,
 ): Promise<string> {
-  return new SignJWT({ username: payload.username, name: payload.name })
+  return new SignJWT({ username: payload.username, name: payload.name, role: payload.role })
     .setProtectedHeader({ alg: ALG })
     .setSubject(payload.sub)
     .setIssuedAt()
