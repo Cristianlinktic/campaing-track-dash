@@ -76,7 +76,7 @@ export function TrackingTable({
                       name="real_investment"
                       defaultValue={row.real || ""}
                       min={0}
-                      step={1000}
+                      step="any"
                       placeholder="0"
                       className="no-spin w-32 rounded-md border border-slate-300 px-2.5 py-1.5 text-right text-sm tabular-nums outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                     />

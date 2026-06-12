@@ -57,7 +57,30 @@ export interface CampaignMetrics {
   inversion_acumulada: number;
   impresion_acumulada: number;
   pacing_presupuestal: number; // porcentaje, ej: 73.5
+  alcance_acumulado: number;
   updated_at: string;
+}
+
+export interface DailyActuals {
+  id: string;
+  campaign_id: string;
+  day_number: number;
+  date: string;
+  meta: number;
+  pilas: number;
+  youtube: number;
+  google_display: number;
+}
+
+export interface DailyImpressions {
+  id: string;
+  campaign_id: string;
+  day_number: number;
+  date: string;
+  meta: number;
+  pilas: number;
+  youtube: number;
+  google_display: number;
 }
 
 // Snapshot completo que consumen las páginas del dashboard.
@@ -66,6 +89,8 @@ export interface CampaignData {
   channels: CampaignChannel[];
   days: DailyPlan[];
   metrics: CampaignMetrics | null;
+  actuals: DailyActuals[];
+  impressions: DailyImpressions[];
 }
 
 // ── Estructura que produce el parser de Excel ─────────────────────────────

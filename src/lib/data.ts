@@ -5,6 +5,8 @@ import type {
   CampaignChannel,
   CampaignData,
   CampaignMetrics,
+  DailyActuals,
+  DailyImpressions,
   DailyPlan,
   ParsedPlan,
 } from "./types";
@@ -27,7 +29,7 @@ export async function getCampaignData(): Promise<CampaignData | null> {
   if (error) throw error;
   if (!campaign) return null;
 
-  const [channelsRes, daysRes, metricsRes] = await Promise.all([
+  const [channelsRes, daysRes, metricsRes, actualsRes, impressionsRes] = await Promise.all([
     supabase
       .from("campaign_channels")
       .select("*")
@@ -42,6 +44,16 @@ export async function getCampaignData(): Promise<CampaignData | null> {
       .select("*")
       .eq("campaign_id", campaign.id)
       .maybeSingle<CampaignMetrics>(),
+    supabase
+      .from("campaign_daily_actuals")
+      .select("*")
+      .eq("campaign_id", campaign.id)
+      .order("day_number", { ascending: true }),
+    supabase
+      .from("campaign_daily_impressions")
+      .select("*")
+      .eq("campaign_id", campaign.id)
+      .order("day_number", { ascending: true }),
   ]);
 
   if (channelsRes.error) throw channelsRes.error;
@@ -56,6 +68,8 @@ export async function getCampaignData(): Promise<CampaignData | null> {
     channels,
     days: daysRes.data as DailyPlan[],
     metrics: metricsRes.data ?? null,
+    actuals: (actualsRes.data as DailyActuals[]) ?? [],
+    impressions: (impressionsRes.data as DailyImpressions[]) ?? [],
   };
 }
 
