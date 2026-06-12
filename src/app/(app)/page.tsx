@@ -9,6 +9,7 @@ import {
   formatCOP,
   formatCOPCompact,
   formatDate,
+  formatDecimal,
   formatNumber,
   formatPercent,
 } from "@/lib/format";
@@ -77,31 +78,49 @@ export default async function ResumenPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {/* Card 1 — Inversión: número grande = acumulada (config), hint = diario */}
         <KpiCard
-          label="Inversión total"
-          value={formatCOP(campaign.total_budget)}
-          hint={`${formatCOPCompact(totals.dailyBudget)} / día`}
+          label="Inversión"
+          value={
+            data.metrics?.inversion_acumulada
+              ? formatCOP(data.metrics.inversion_acumulada)
+              : "—"
+          }
+          hint={formatCOP(campaign.total_budget)}
           accent="brand"
           icon={<Icon path="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />}
         />
+        {/* Card 2 — Impresiones: número grande = acumulada (config), hint = proyectadas */}
         <KpiCard
-          label="Impresiones proyectadas"
-          value={formatNumber(totals.impressions)}
-          hint={`Alcance único ~${formatNumber(totals.reach)}`}
+          label="Impresiones"
+          value={
+            data.metrics?.impresion_acumulada
+              ? formatNumber(data.metrics.impresion_acumulada)
+              : "—"
+          }
+          hint={`$ ${formatNumber(totals.impressions)}`}
           accent="violet"
           icon={<Icon path="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z M12 9a3 3 0 100 6 3 3 0 000-6z" />}
         />
+        {/* Card 3 — Alcance único estimado (traída de proyecciones) */}
         <KpiCard
-          label="Clicks proyectados"
-          value={formatNumber(totals.clicks)}
-          hint={`CTR ponderado ${formatPercent(totals.weightedCtr)}`}
+          label="Alcance único estimado"
+          value={formatNumber(totals.reach)}
+          hint={`Frecuencia prom. ${formatDecimal(
+            channels.reduce((a, c) => a + c.frequency, 0) / (channels.length || 1),
+          )}x`}
           accent="emerald"
-          icon={<Icon path="M9 11l3 3L22 4 M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />}
+          icon={<Icon path="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75 M9 7a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />}
         />
+        {/* Card 4 — Pacing presupuestal (config), se muestra como % */}
         <KpiCard
-          label="Costo por click"
-          value={formatCOP(totals.blendedCpc)}
-          hint={`CPM mezcla ${formatCOP(totals.blendedCpm)}`}
+          label="Pacing presupuestal"
+          value={
+            data.metrics?.pacing_presupuestal != null
+              ? `${formatDecimal(data.metrics.pacing_presupuestal)} %`
+              : "— %"
+          }
+          hint="Meta de ejecución presupuestal"
           accent="amber"
           icon={<Icon path="M3 3v18h18 M7 14l3-3 4 4 6-6" />}
         />

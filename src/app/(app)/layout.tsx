@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/components/sidebar";
 import { TopBar } from "@/components/top-bar";
+import { ToastProvider } from "@/components/ui/toast";
 import { getCurrentUser } from "@/lib/auth";
 import { getCampaignData } from "@/lib/data";
 
@@ -22,14 +23,16 @@ export default async function AppLayout({
   }
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <TopBar title={campaignName} username={user.name ?? user.username} />
-        <main className="flex-1 px-5 py-6 sm:px-8 sm:py-8">
-          <div className="mx-auto max-w-7xl space-y-6">{children}</div>
-        </main>
+    <ToastProvider>
+      <div className="flex min-h-screen">
+        <Sidebar />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <TopBar title={campaignName} username={user.name ?? user.username} />
+          <main className="flex-1 px-5 py-6 sm:px-8 sm:py-8">
+            <div className="mx-auto max-w-7xl space-y-6">{children}</div>
+          </main>
+        </div>
       </div>
-    </div>
+    </ToastProvider>
   );
 }

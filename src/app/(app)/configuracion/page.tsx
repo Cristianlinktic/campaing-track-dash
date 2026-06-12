@@ -5,14 +5,15 @@ import { formatPercent } from "@/lib/format";
 import { Card, CardBody, CardHeader } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ActionForm } from "@/components/action-form";
 import { SaveButton } from "@/components/save-button";
-import { updateChannelAction, updateParamsAction } from "../actions";
+import { updateChannelAction, updateMetricsAction, updateParamsAction } from "../actions";
 
 export default async function ConfiguracionPage() {
   const data = await getCampaignData();
   if (!data) return <EmptyState />;
 
-  const { campaign, channels } = data;
+  const { campaign, channels, metrics } = data;
   const computed = computeChannels(data);
   const pctSum = participationSum(channels);
   const pctOk = Math.abs(pctSum - 1) < 0.005;
@@ -28,7 +29,7 @@ export default async function ConfiguracionPage() {
       <Card>
         <CardHeader title="Parámetros de campaña" />
         <CardBody>
-          <form action={updateParamsAction} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ActionForm action={updateParamsAction} className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <input type="hidden" name="campaign_id" value={campaign.id} />
             <FieldInput label="Nombre" name="name" defaultValue={campaign.name} className="sm:col-span-2" />
             <FieldInput
@@ -55,7 +56,48 @@ export default async function ConfiguracionPage() {
             <div className="flex items-end sm:col-span-2 lg:col-span-3">
               <SaveButton>Guardar parámetros</SaveButton>
             </div>
-          </form>
+          </ActionForm>
+        </CardBody>
+      </Card>
+
+      {/* Métricas acumuladas — alimentan las cards del Resumen */}
+      <Card>
+        <CardHeader
+          title="Métricas acumuladas"
+          subtitle="Estos valores se muestran en las cards del Resumen Ejecutivo. Actualízalos diariamente."
+        />
+        <CardBody>
+          <ActionForm action={updateMetricsAction} className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <input type="hidden" name="campaign_id" value={campaign.id} />
+            <FieldInput
+              label="Inversión acumulada (COP)"
+              name="inversion_acumulada"
+              type="number"
+              defaultValue={metrics?.inversion_acumulada ?? 0}
+              min={0}
+              step={1000}
+            />
+            <FieldInput
+              label="Impresión acumulada"
+              name="impresion_acumulada"
+              type="number"
+              defaultValue={metrics?.impresion_acumulada ?? 0}
+              min={0}
+              step={1000}
+            />
+            <FieldInput
+              label="Pacing presupuestal (%)"
+              name="pacing_presupuestal"
+              type="number"
+              defaultValue={metrics?.pacing_presupuestal ?? 0}
+              min={0}
+              max={999}
+              step={0.1}
+            />
+            <div className="flex items-end sm:col-span-3">
+              <SaveButton>Guardar métricas</SaveButton>
+            </div>
+          </ActionForm>
         </CardBody>
       </Card>
 
@@ -83,7 +125,7 @@ export default async function ConfiguracionPage() {
                 }
               />
               <CardBody>
-                <form action={updateChannelAction} className="space-y-4">
+                <ActionForm action={updateChannelAction} className="space-y-4">
                   <input type="hidden" name="channel_id" value={ch.id} />
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                     <FieldInput
@@ -130,7 +172,7 @@ export default async function ConfiguracionPage() {
                   <div className="flex justify-end">
                     <SaveButton>Guardar canal</SaveButton>
                   </div>
-                </form>
+                </ActionForm>
               </CardBody>
             </Card>
           );

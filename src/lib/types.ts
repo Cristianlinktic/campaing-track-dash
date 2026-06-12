@@ -51,11 +51,21 @@ export interface DailyPlan {
   updated_at: string;
 }
 
+export interface CampaignMetrics {
+  id: string;
+  campaign_id: string;
+  inversion_acumulada: number;
+  impresion_acumulada: number;
+  pacing_presupuestal: number; // porcentaje, ej: 73.5
+  updated_at: string;
+}
+
 // Snapshot completo que consumen las páginas del dashboard.
 export interface CampaignData {
   campaign: Campaign;
   channels: CampaignChannel[];
   days: DailyPlan[];
+  metrics: CampaignMetrics | null;
 }
 
 // ── Estructura que produce el parser de Excel ─────────────────────────────

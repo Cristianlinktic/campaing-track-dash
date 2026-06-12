@@ -4,6 +4,7 @@ import type {
   Campaign,
   CampaignChannel,
   CampaignData,
+  CampaignMetrics,
   DailyPlan,
   ParsedPlan,
 } from "./types";
@@ -26,7 +27,7 @@ export async function getCampaignData(): Promise<CampaignData | null> {
   if (error) throw error;
   if (!campaign) return null;
 
-  const [channelsRes, daysRes] = await Promise.all([
+  const [channelsRes, daysRes, metricsRes] = await Promise.all([
     supabase
       .from("campaign_channels")
       .select("*")
@@ -36,6 +37,11 @@ export async function getCampaignData(): Promise<CampaignData | null> {
       .select("*")
       .eq("campaign_id", campaign.id)
       .order("day_number", { ascending: true }),
+    supabase
+      .from("campaign_metrics")
+      .select("*")
+      .eq("campaign_id", campaign.id)
+      .maybeSingle<CampaignMetrics>(),
   ]);
 
   if (channelsRes.error) throw channelsRes.error;
@@ -49,6 +55,7 @@ export async function getCampaignData(): Promise<CampaignData | null> {
     campaign,
     channels,
     days: daysRes.data as DailyPlan[],
+    metrics: metricsRes.data ?? null,
   };
 }
 
@@ -135,4 +142,9 @@ export async function replaceCampaignFromPlan(plan: ParsedPlan): Promise<void> {
   }));
   const { error: dErr } = await supabase.from("daily_plan").insert(dayRows);
   if (dErr) throw dErr;
+
+  // 4) Inicializar fila de métricas si no existe aún.
+  await supabase
+    .from("campaign_metrics")
+    .upsert({ campaign_id: campaignId }, { onConflict: "campaign_id", ignoreDuplicates: true });
 }
